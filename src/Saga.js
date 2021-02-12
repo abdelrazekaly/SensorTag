@@ -154,7 +154,7 @@ function* scan(manager: BleManager): Generator<*, *, *> {
           emit([error, scannedDevice]);
           return;
         }
-        if (scannedDevice != null && scannedDevice.localName === 'SensorTag') {
+        if (scannedDevice != null && scannedDevice.localName === 'Bonocle_Test') {
           emit([error, scannedDevice]);
         }
       },

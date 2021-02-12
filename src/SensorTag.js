@@ -103,7 +103,7 @@ class SensorTag extends Component<Props, State> {
     return (
       <View style={{padding: 10}}>
         <Text style={styles.textStyle} numberOfLines={1}>
-          SensorTag: {this.sensorTagStatus()}
+          BONOCLE: {this.sensorTagStatus()}
         </Text>
         <View style={{flexDirection: 'row', paddingTop: 5}}>
           <Button
@@ -131,7 +131,8 @@ class SensorTag extends Component<Props, State> {
             disabled={!this.isSensorTagReadyToExecuteTests()}
             style={{flex: 1}}
             onPress={() => {
-              this.setState({showModal: true});
+              // this.setState({showModal: true});
+              this.props.executeTest('READ_ALL_CHARACTERISTICS');
             }}
             title={'Execute test'}
           />

@@ -10,6 +10,7 @@ import {
   BleErrorCode,
 } from 'react-native-ble-plx';
 import {log, logError} from './Reducer';
+import base64 from 'react-native-base64'
 
 export type SensorTagTestMetadata = {
   id: string,
@@ -42,8 +43,8 @@ function* readAllCharacteristics(device: Device): Generator<*, boolean, *> {
       for (const characteristic of characteristics) {
         yield put(log('Found characteristic: ' + characteristic.uuid));
 
-        if (characteristic.uuid === '00002a02-0000-1000-8000-00805f9b34fb')
-          continue;
+        // if (characteristic.uuid === '19B10001-E8F2-537E-4F6C-D104768A1214')
+        //   continue;
 
         const descriptors: Array<Descriptor> = yield call([
           characteristic,
@@ -54,12 +55,12 @@ function* readAllCharacteristics(device: Device): Generator<*, boolean, *> {
           yield put(log('* Found descriptor: ' + descriptor.uuid));
           const d: Descriptor = yield call([descriptor, descriptor.read]);
           yield put(log('Descriptor value: ' + (d.value || 'null')));
-          if (d.uuid === '00002902-0000-1000-8000-00805f9b34fb') {
-            yield put(log('Skipping CCC'));
-            continue;
-          }
+          // if (d.uuid === '00002902-0000-1000-8000-00805f9b34fb') {
+          //   yield put(log('Skipping CCC'));
+          //   continue;
+          // }
           try {
-            yield call([descriptor, descriptor.write], 'AAA=');
+            yield call([descriptor, descriptor.write], 'MQ==');
           } catch (error) {
             const bleError: BleError = error;
             if (bleError.errorCode === BleErrorCode.DescriptorWriteFailed) {
@@ -70,18 +71,20 @@ function* readAllCharacteristics(device: Device): Generator<*, boolean, *> {
           }
         }
 
+        // byte data = (byte) 0
         yield put(log('Found characteristic: ' + characteristic.uuid));
+        if (characteristic.isWritableWithResponse) {
+          yield call(
+            [characteristic, characteristic.writeWithResponse],
+            base64.encode('A'),
+          );
+          yield put(log('Successfully written value back'));
+        }
+
         if (characteristic.isReadable) {
           yield put(log('Reading value...'));
           var c = yield call([characteristic, characteristic.read]);
           yield put(log('Got base64 value: ' + c.value));
-          if (characteristic.isWritableWithResponse) {
-            yield call(
-              [characteristic, characteristic.writeWithResponse],
-              c.value,
-            );
-            yield put(log('Successfully written value back'));
-          }
         }
       }
     }
